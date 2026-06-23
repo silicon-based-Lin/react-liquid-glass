@@ -4,6 +4,10 @@ English | [中文](#中文)
 
 A Codex Agent Skill for implementing Apple-style Liquid Glass and frosted-glass UI surfaces in React and Next.js projects.
 
+![React Liquid Glass component overview](assets/react-liquid-glass-overview.png)
+
+Demo: [examples/liquid-glass-demo.html](examples/liquid-glass-demo.html)
+
 This repository is a human-facing distribution wrapper around the actual skill. Codex reads `SKILL.md` as the source of truth; this README explains what the skill is, how to install it, and what files are included.
 
 ## What It Does
@@ -99,6 +103,8 @@ react-liquid-glass/
 一个用于 React 和 Next.js 项目的 Codex Agent Skill，帮助 Codex 实现 Apple 风格的 Liquid Glass、毛玻璃、折射和透明悬浮 UI。
 
 这个仓库是面向使用者和维护者的发布说明。Codex 真正读取和执行的是 `SKILL.md`；本 README 负责说明这个 skill 的用途、安装方式和目录结构。
+
+示例 demo：[examples/liquid-glass-demo.html](examples/liquid-glass-demo.html)
 
 ## 它能做什么
 

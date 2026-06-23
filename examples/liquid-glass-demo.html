@@ -1,0 +1,1849 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>React Liquid Glass Component Demo</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --page-bg: #edf5f8;
+        --ink: #12212a;
+        --muted: #586a72;
+        --line: rgba(255, 255, 255, 0.62);
+        --panel: rgba(255, 255, 255, 0.44);
+        --panel-strong: rgba(255, 255, 255, 0.64);
+        --accent: #3278ff;
+        --accent-2: #11a88c;
+        --accent-3: #e56b8f;
+        --accent-4: #f5aa32;
+        --danger: #e24d61;
+        --success: #12a170;
+        --shadow: rgba(29, 54, 72, 0.22);
+        --glass-alpha: 0.12;
+        --glass-blur: 5px;
+        --glass-saturation: 2.15;
+        --glass-radius: 24px;
+        --rim-strength: 1;
+        --edge-red: rgba(255, 55, 122, 0.56);
+        --edge-blue: rgba(36, 132, 255, 0.58);
+        --edge-green: rgba(20, 206, 170, 0.34);
+        --glass-filter-soft: blur(calc(var(--glass-blur) + 4px)) saturate(1.65) brightness(1.05);
+        --body-pad: clamp(18px, 3vw, 40px);
+      }
+
+      body[data-theme="mint"] {
+        --page-bg: #e7f7ed;
+        --accent: #0c8f74;
+        --accent-2: #2a76df;
+        --accent-3: #d95791;
+        --accent-4: #e7a72d;
+        --shadow: rgba(23, 87, 76, 0.2);
+      }
+
+      body[data-theme="rose"] {
+        --page-bg: #f7ecef;
+        --accent: #d84f7d;
+        --accent-2: #197b94;
+        --accent-3: #815ee8;
+        --accent-4: #dc8c2f;
+        --shadow: rgba(105, 39, 70, 0.18);
+      }
+
+      body[data-theme="graphite"] {
+        color-scheme: dark;
+        --page-bg: #111820;
+        --ink: #ecf7fb;
+        --muted: #a8bbc5;
+        --line: rgba(255, 255, 255, 0.16);
+        --panel: rgba(21, 35, 45, 0.58);
+        --panel-strong: rgba(28, 44, 56, 0.74);
+        --accent: #70a7ff;
+        --accent-2: #57d9bb;
+        --accent-3: #ff8eb0;
+        --accent-4: #ffc15a;
+        --shadow: rgba(0, 0, 0, 0.42);
+        --edge-red: rgba(255, 95, 142, 0.38);
+        --edge-blue: rgba(111, 174, 255, 0.42);
+        --edge-green: rgba(94, 229, 205, 0.26);
+      }
+
+      body[data-path="bits-soft"] {
+        --glass-alpha: 0.18;
+        --glass-blur: 11px;
+        --glass-saturation: 1.55;
+        --rim-strength: 0.72;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        color: var(--ink);
+        font-family:
+          Inter,
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+        background-color: var(--page-bg);
+        background-image:
+          linear-gradient(115deg, transparent 0 8%, rgba(50, 120, 255, 0.2) 8% 12%, transparent 12% 26%, rgba(17, 168, 140, 0.18) 26% 30%, transparent 30% 52%, rgba(229, 107, 143, 0.18) 52% 56%, transparent 56%),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.74) 0 13%, transparent 13% 21%, rgba(255, 255, 255, 0.62) 21% 36%, transparent 36% 48%, rgba(255, 255, 255, 0.56) 48% 61%, transparent 61%),
+          repeating-linear-gradient(0deg, rgba(18, 33, 42, 0.18) 0 1px, transparent 1px 34px),
+          repeating-linear-gradient(90deg, rgba(18, 33, 42, 0.16) 0 1px, transparent 1px 34px),
+          repeating-linear-gradient(135deg, rgba(50, 120, 255, 0.18) 0 3px, transparent 3px 23px),
+          repeating-linear-gradient(45deg, transparent 0 38px, rgba(229, 107, 143, 0.16) 38px 41px, transparent 41px 82px);
+        background-attachment: fixed;
+        background-size:
+          100% 100%,
+          100% 100%,
+          68px 68px,
+          68px 68px,
+          220px 220px,
+          260px 260px;
+        letter-spacing: 0;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: -2;
+        background-image:
+          linear-gradient(90deg, rgba(18, 33, 42, 0.32) 0 2px, transparent 2px 80px),
+          linear-gradient(0deg, rgba(18, 33, 42, 0.24) 0 2px, transparent 2px 80px),
+          repeating-linear-gradient(90deg, transparent 0 118px, rgba(50, 120, 255, 0.28) 118px 124px, transparent 124px 240px),
+          repeating-linear-gradient(0deg, transparent 0 118px, rgba(229, 107, 143, 0.22) 118px 124px, transparent 124px 240px);
+        background-size:
+          240px 240px,
+          240px 240px,
+          240px 240px,
+          240px 240px;
+        opacity: 0.62;
+      }
+
+      body::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        background:
+          linear-gradient(90deg, transparent 0 18%, rgba(255, 255, 255, 0.62) 18% 19%, transparent 19% 38%, rgba(255, 255, 255, 0.58) 38% 39%, transparent 39% 62%, rgba(255, 255, 255, 0.5) 62% 63%, transparent 63%),
+          repeating-linear-gradient(160deg, rgba(18, 33, 42, 0.12) 0 2px, transparent 2px 42px),
+          linear-gradient(to bottom, rgba(255, 255, 255, 0.5), transparent 28%, rgba(255, 255, 255, 0.38));
+        opacity: 0.78;
+        pointer-events: none;
+      }
+
+      button,
+      input,
+      select,
+      textarea {
+        font: inherit;
+      }
+
+      button {
+        min-height: 44px;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      .page {
+        width: min(1440px, 100%);
+        margin: 0 auto;
+        padding: 24px var(--body-pad) 120px;
+      }
+
+      .svg-filters {
+        position: fixed;
+        width: 0;
+        height: 0;
+        overflow: hidden;
+        pointer-events: none;
+      }
+
+      .glass {
+        position: relative;
+        border: 1px solid rgba(255, 255, 255, calc(0.5 + var(--rim-strength) * 0.24));
+        border-radius: var(--glass-radius);
+        background:
+          linear-gradient(135deg, rgba(255, 255, 255, calc(var(--glass-alpha) + 0.18)), rgba(255, 255, 255, calc(var(--glass-alpha) * 0.28))),
+          radial-gradient(circle at 18% 10%, rgba(255, 255, 255, 0.34), transparent 26%),
+          radial-gradient(circle at 84% 88%, rgba(255, 255, 255, 0.12), transparent 30%),
+          var(--panel);
+        box-shadow:
+          inset 1px 1px 0 rgba(255, 255, 255, 0.86),
+          inset -1px -1px 0 rgba(255, 255, 255, 0.24),
+          inset 10px 0 28px rgba(255, 255, 255, 0.16),
+          inset -10px 0 28px rgba(120, 168, 255, 0.08),
+          -3px 0 14px var(--edge-red),
+          3px 0 14px var(--edge-blue),
+          0 22px 58px var(--shadow);
+        backdrop-filter: var(--glass-filter-soft);
+        -webkit-backdrop-filter: var(--glass-filter-soft);
+        isolation: isolate;
+        overflow: hidden;
+      }
+
+      body[data-path^="bits"] .glass {
+        backdrop-filter: var(--glass-filter-soft);
+        -webkit-backdrop-filter: var(--glass-filter-soft);
+        backdrop-filter: url("#liquid-glass-displacement") blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(1.14) contrast(1.08);
+        -webkit-backdrop-filter: url("#liquid-glass-displacement") blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(1.14) contrast(1.08);
+      }
+
+      body[data-path="bits-soft"] .glass {
+        backdrop-filter: var(--glass-filter-soft);
+        -webkit-backdrop-filter: var(--glass-filter-soft);
+        backdrop-filter: url("#liquid-glass-displacement-soft") blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(1.08);
+        -webkit-backdrop-filter: url("#liquid-glass-displacement-soft") blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(1.08);
+      }
+
+      .glass::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        border-radius: inherit;
+        background:
+          linear-gradient(135deg, rgba(255, 255, 255, 0.92), transparent 20%),
+          linear-gradient(315deg, rgba(255, 255, 255, 0.42), transparent 28%),
+          linear-gradient(90deg, var(--edge-red), transparent 13%, transparent 84%, var(--edge-blue));
+        opacity: var(--rim-strength);
+        mix-blend-mode: screen;
+      }
+
+      .glass::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        pointer-events: none;
+        border-radius: inherit;
+        background:
+          linear-gradient(90deg, var(--edge-red), transparent 14%, var(--edge-green) 50%, transparent 70%, var(--edge-blue)),
+          repeating-linear-gradient(112deg, rgba(255, 255, 255, 0.26) 0 1px, transparent 1px 8px),
+          radial-gradient(circle at 18% 12%, rgba(255, 255, 255, 0.5), transparent 24%),
+          radial-gradient(circle at 78% 86%, rgba(255, 255, 255, 0.26), transparent 28%);
+        mix-blend-mode: screen;
+        opacity: 0.68;
+        filter: url("#liquid-edge-chromatic");
+      }
+
+      .glass > * {
+        position: relative;
+        z-index: 2;
+      }
+
+      .glass[data-depth="strong"] {
+        background:
+          linear-gradient(135deg, rgba(255, 255, 255, 0.42), rgba(255, 255, 255, 0.1)),
+          radial-gradient(circle at 24% 14%, rgba(255, 255, 255, 0.34), transparent 26%),
+          var(--panel-strong);
+      }
+
+      .top-host {
+        position: fixed;
+        top: max(12px, env(safe-area-inset-top));
+        left: max(12px, env(safe-area-inset-left));
+        right: max(12px, env(safe-area-inset-right));
+        z-index: 50;
+        max-width: 1180px;
+        margin-inline: auto;
+        pointer-events: none;
+      }
+
+      .top-nav {
+        --glass-radius: 999px;
+        min-height: 58px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 8px;
+        pointer-events: auto;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
+        padding-left: 10px;
+        font-weight: 800;
+      }
+
+      .brand-mark {
+        width: 34px;
+        height: 34px;
+        border-radius: 12px;
+        display: grid;
+        place-items: center;
+        color: white;
+        background:
+          linear-gradient(135deg, var(--accent), var(--accent-2)),
+          #3278ff;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
+      }
+
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .nav-links a,
+      .pill-button,
+      .segmented button,
+      .chip,
+      .glass-button {
+        position: relative;
+        border: 0;
+        border-radius: 999px;
+        color: var(--ink);
+        background:
+          linear-gradient(135deg, rgba(255, 255, 255, 0.42), rgba(255, 255, 255, 0.16)),
+          rgba(255, 255, 255, 0.18);
+        box-shadow:
+          inset 1px 1px 0 rgba(255, 255, 255, 0.72),
+          inset -1px -1px 0 rgba(255, 255, 255, 0.18),
+          -1px 0 8px rgba(255, 70, 126, 0.12),
+          1px 0 8px rgba(62, 146, 255, 0.13);
+        backdrop-filter: blur(calc(var(--glass-blur) * 0.7)) saturate(1.55);
+        -webkit-backdrop-filter: blur(calc(var(--glass-blur) * 0.7)) saturate(1.55);
+        cursor: pointer;
+        text-decoration: none;
+        transition:
+          transform 160ms ease,
+          background 160ms ease,
+          color 160ms ease,
+          box-shadow 160ms ease;
+        overflow: hidden;
+        isolation: isolate;
+      }
+
+      .nav-links a::before,
+      .pill-button::before,
+      .segmented button::before,
+      .chip::before,
+      .glass-button::before,
+      .input-shell::before,
+      .tab-list button::before,
+      .switch::before,
+      .task-card::before,
+      .callout::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        border-radius: inherit;
+        pointer-events: none;
+        background:
+          linear-gradient(100deg, var(--edge-red), transparent 22%, transparent 72%, var(--edge-blue)),
+          linear-gradient(145deg, rgba(255, 255, 255, 0.45), transparent 46%);
+        opacity: 0.34;
+        mix-blend-mode: screen;
+      }
+
+      .nav-links a {
+        display: inline-flex;
+        align-items: center;
+        min-height: 42px;
+        padding: 0 14px;
+        color: var(--muted);
+        font-weight: 700;
+      }
+
+      .nav-links a[aria-current="page"],
+      .segmented button[aria-pressed="true"],
+      .chip[aria-pressed="true"] {
+        color: white;
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.32),
+          0 10px 20px rgba(50, 120, 255, 0.24);
+      }
+
+      .pill-button:hover,
+      .glass-button:hover,
+      .nav-links a:hover,
+      .segmented button:hover,
+      .chip:hover {
+        transform: translateY(-1px);
+      }
+
+      .nav-action {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 0 16px;
+        font-weight: 800;
+      }
+
+      .hero-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.45fr) minmax(320px, 0.7fr);
+        gap: 18px;
+        padding-top: 84px;
+      }
+
+      .control-panel,
+      .stage-panel,
+      .section-panel {
+        padding: clamp(18px, 3vw, 28px);
+      }
+
+      .kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        min-height: 32px;
+        padding: 0 12px;
+        border-radius: 999px;
+        color: var(--accent);
+        background: rgba(255, 255, 255, 0.42);
+        font-size: 13px;
+        font-weight: 800;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin-top: 0;
+      }
+
+      h1 {
+        max-width: 780px;
+        margin-bottom: 14px;
+        font-size: clamp(34px, 5vw, 68px);
+        line-height: 0.98;
+        letter-spacing: 0;
+      }
+
+      h2 {
+        margin-bottom: 16px;
+        font-size: clamp(22px, 3vw, 34px);
+        letter-spacing: 0;
+      }
+
+      h3 {
+        margin-bottom: 10px;
+        font-size: 18px;
+        letter-spacing: 0;
+      }
+
+      .lead {
+        max-width: 760px;
+        margin-bottom: 22px;
+        color: var(--muted);
+        font-size: clamp(16px, 1.7vw, 20px);
+        line-height: 1.7;
+      }
+
+      .toolbar-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .segmented {
+        display: inline-flex;
+        gap: 4px;
+        padding: 5px;
+        border-radius: 999px;
+        background:
+          linear-gradient(135deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.08)),
+          rgba(255, 255, 255, 0.18);
+        backdrop-filter: var(--glass-filter-soft);
+        -webkit-backdrop-filter: var(--glass-filter-soft);
+      }
+
+      .segmented button {
+        min-height: 40px;
+        padding: 0 14px;
+        font-weight: 800;
+        white-space: nowrap;
+      }
+
+      .glass-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 46px;
+        padding: 0 16px;
+        font-weight: 800;
+      }
+
+      .glass-button.primary {
+        color: white;
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      }
+
+      .glass-button.warning {
+        color: #231a05;
+        background: linear-gradient(135deg, #ffe3a3, var(--accent-4));
+      }
+
+      .glass-button.danger {
+        color: white;
+        background: linear-gradient(135deg, var(--danger), var(--accent-3));
+      }
+
+      .glass-button:disabled {
+        color: rgba(88, 106, 114, 0.78);
+        cursor: not-allowed;
+        opacity: 0.55;
+        transform: none;
+      }
+
+      .stage-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-top: 20px;
+      }
+
+      .mini-card {
+        min-height: 138px;
+        padding: 18px;
+      }
+
+      .metric-value {
+        margin: 8px 0 4px;
+        font-size: 34px;
+        font-weight: 900;
+      }
+
+      .muted {
+        color: var(--muted);
+      }
+
+      .control-list {
+        display: grid;
+        gap: 16px;
+      }
+
+      .control-field {
+        display: grid;
+        gap: 8px;
+      }
+
+      .control-field label {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 800;
+      }
+
+      input[type="range"] {
+        width: 100%;
+        accent-color: var(--accent);
+      }
+
+      .theme-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .theme-dot {
+        width: 44px;
+        height: 44px;
+        border: 1px solid rgba(255, 255, 255, 0.72);
+        border-radius: 50%;
+        cursor: pointer;
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.5),
+          0 8px 20px var(--shadow);
+      }
+
+      .theme-dot[aria-pressed="true"] {
+        outline: 3px solid var(--ink);
+        outline-offset: 3px;
+      }
+
+      .theme-dot[data-theme-value="aqua"] {
+        background: linear-gradient(135deg, #3278ff, #11a88c);
+      }
+
+      .theme-dot[data-theme-value="mint"] {
+        background: linear-gradient(135deg, #0c8f74, #f1c24a);
+      }
+
+      .theme-dot[data-theme-value="rose"] {
+        background: linear-gradient(135deg, #d84f7d, #815ee8);
+      }
+
+      .theme-dot[data-theme-value="graphite"] {
+        background: linear-gradient(135deg, #111820, #70a7ff);
+      }
+
+      .demo-section {
+        margin-top: 18px;
+      }
+
+      .section-title {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 18px;
+        margin: 32px 0 14px;
+      }
+
+      .section-title p {
+        max-width: 640px;
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.6;
+      }
+
+      .component-grid {
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        gap: 16px;
+      }
+
+      .span-3 {
+        grid-column: span 3;
+      }
+
+      .span-4 {
+        grid-column: span 4;
+      }
+
+      .span-5 {
+        grid-column: span 5;
+      }
+
+      .span-6 {
+        grid-column: span 6;
+      }
+
+      .span-7 {
+        grid-column: span 7;
+      }
+
+      .span-8 {
+        grid-column: span 8;
+      }
+
+      .span-12 {
+        grid-column: span 12;
+      }
+
+      .component-card {
+        min-height: 180px;
+        padding: 18px;
+      }
+
+      .button-stack,
+      .chip-row,
+      .form-grid,
+      .settings-list,
+      .stat-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .chip {
+        min-height: 38px;
+        padding: 0 13px;
+        font-weight: 800;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        min-height: 30px;
+        padding: 0 10px;
+        border-radius: 999px;
+        color: white;
+        background: linear-gradient(135deg, var(--accent-3), var(--accent));
+        font-size: 13px;
+        font-weight: 900;
+      }
+
+      .badge.soft {
+        color: var(--ink);
+        background: rgba(255, 255, 255, 0.42);
+      }
+
+      .form-control {
+        display: grid;
+        gap: 6px;
+        min-width: min(240px, 100%);
+        flex: 1;
+      }
+
+      .form-control span {
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 800;
+      }
+
+      .input-shell {
+        position: relative;
+        display: flex;
+        align-items: center;
+        min-height: 46px;
+        gap: 8px;
+        padding: 0 12px;
+        border: 1px solid rgba(255, 255, 255, 0.7);
+        border-radius: 16px;
+        background:
+          linear-gradient(135deg, rgba(255, 255, 255, 0.46), rgba(255, 255, 255, 0.14)),
+          rgba(255, 255, 255, 0.2);
+        box-shadow:
+          inset 1px 1px 0 rgba(255, 255, 255, 0.72),
+          inset -1px -1px 0 rgba(255, 255, 255, 0.16),
+          -1px 0 8px rgba(255, 70, 126, 0.1),
+          1px 0 8px rgba(62, 146, 255, 0.12);
+        backdrop-filter: blur(calc(var(--glass-blur) * 0.75)) saturate(1.45);
+        -webkit-backdrop-filter: blur(calc(var(--glass-blur) * 0.75)) saturate(1.45);
+        overflow: hidden;
+        isolation: isolate;
+      }
+
+      .input-shell input,
+      .input-shell select,
+      .input-shell textarea {
+        position: relative;
+        z-index: 1;
+        width: 100%;
+        border: 0;
+        outline: 0;
+        color: var(--ink);
+        background: transparent;
+      }
+
+      .switch {
+        position: relative;
+        width: 74px;
+        height: 44px;
+        border: 1px solid rgba(255, 255, 255, 0.7);
+        border-radius: 999px;
+        background:
+          linear-gradient(135deg, rgba(255, 255, 255, 0.48), rgba(255, 255, 255, 0.14)),
+          rgba(255, 255, 255, 0.18);
+        box-shadow:
+          inset 0 1px 6px rgba(0, 0, 0, 0.12),
+          inset 0 1px 0 rgba(255, 255, 255, 0.72),
+          -1px 0 8px rgba(255, 70, 126, 0.12),
+          1px 0 8px rgba(62, 146, 255, 0.14);
+        backdrop-filter: blur(calc(var(--glass-blur) * 0.75)) saturate(1.45);
+        -webkit-backdrop-filter: blur(calc(var(--glass-blur) * 0.75)) saturate(1.45);
+        cursor: pointer;
+        padding: 4px;
+        overflow: hidden;
+        isolation: isolate;
+      }
+
+      .switch span {
+        position: relative;
+        z-index: 1;
+        display: block;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background:
+          radial-gradient(circle at 28% 22%, rgba(255, 255, 255, 0.96), transparent 34%),
+          linear-gradient(135deg, rgba(255, 255, 255, 0.86), rgba(255, 255, 255, 0.48));
+        box-shadow:
+          inset 1px 1px 0 rgba(255, 255, 255, 0.86),
+          -1px 0 8px rgba(255, 70, 126, 0.12),
+          1px 0 8px rgba(62, 146, 255, 0.16),
+          0 8px 20px rgba(0, 0, 0, 0.18);
+        transition: transform 180ms ease;
+      }
+
+      .switch[aria-checked="true"] {
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      }
+
+      .switch[aria-checked="true"] span {
+        transform: translateX(30px);
+      }
+
+      .tabs {
+        display: grid;
+        gap: 12px;
+      }
+
+      .tab-list {
+        position: relative;
+        display: flex;
+        gap: 4px;
+        padding: 5px;
+        border: 1px solid rgba(255, 255, 255, 0.58);
+        border-radius: 18px;
+        background:
+          linear-gradient(135deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.12)),
+          rgba(255, 255, 255, 0.18);
+        box-shadow:
+          inset 1px 1px 0 rgba(255, 255, 255, 0.62),
+          -1px 0 8px rgba(255, 70, 126, 0.1),
+          1px 0 8px rgba(62, 146, 255, 0.12);
+        backdrop-filter: blur(calc(var(--glass-blur) * 0.75)) saturate(1.45);
+        -webkit-backdrop-filter: blur(calc(var(--glass-blur) * 0.75)) saturate(1.45);
+      }
+
+      .tab-list button {
+        position: relative;
+        flex: 1;
+        border: 0;
+        border-radius: 14px;
+        background: transparent;
+        color: var(--muted);
+        font-weight: 900;
+        cursor: pointer;
+        overflow: hidden;
+        isolation: isolate;
+      }
+
+      .tab-list button[aria-selected="true"] {
+        color: white;
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      }
+
+      .tab-panel {
+        display: none;
+        min-height: 86px;
+        padding: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.58);
+        border-radius: 18px;
+        background:
+          linear-gradient(135deg, rgba(255, 255, 255, 0.42), rgba(255, 255, 255, 0.12)),
+          rgba(255, 255, 255, 0.18);
+        box-shadow:
+          inset 1px 1px 0 rgba(255, 255, 255, 0.62),
+          -1px 0 8px rgba(255, 70, 126, 0.09),
+          1px 0 8px rgba(62, 146, 255, 0.11);
+        backdrop-filter: blur(calc(var(--glass-blur) * 0.8)) saturate(1.45);
+        -webkit-backdrop-filter: blur(calc(var(--glass-blur) * 0.8)) saturate(1.45);
+      }
+
+      .tab-panel[data-active="true"] {
+        display: block;
+      }
+
+      .progress {
+        position: relative;
+        height: 12px;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.56);
+        border-radius: 999px;
+        background:
+          linear-gradient(135deg, rgba(255, 255, 255, 0.44), rgba(255, 255, 255, 0.14)),
+          rgba(255, 255, 255, 0.16);
+        box-shadow:
+          inset 1px 1px 0 rgba(255, 255, 255, 0.62),
+          -1px 0 8px rgba(255, 70, 126, 0.08),
+          1px 0 8px rgba(62, 146, 255, 0.1);
+        backdrop-filter: blur(calc(var(--glass-blur) * 0.55)) saturate(1.35);
+        -webkit-backdrop-filter: blur(calc(var(--glass-blur) * 0.55)) saturate(1.35);
+      }
+
+      .progress span {
+        display: block;
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, var(--accent), var(--accent-2), var(--accent-4));
+      }
+
+      .chart {
+        display: grid;
+        grid-template-columns: repeat(8, 1fr);
+        align-items: end;
+        gap: 8px;
+        height: 132px;
+        padding: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.58);
+        border-radius: 18px;
+        background:
+          linear-gradient(135deg, rgba(255, 255, 255, 0.42), rgba(255, 255, 255, 0.1)),
+          rgba(255, 255, 255, 0.16);
+        box-shadow:
+          inset 1px 1px 0 rgba(255, 255, 255, 0.62),
+          -1px 0 8px rgba(255, 70, 126, 0.08),
+          1px 0 8px rgba(62, 146, 255, 0.1);
+        backdrop-filter: blur(calc(var(--glass-blur) * 0.7)) saturate(1.45);
+        -webkit-backdrop-filter: blur(calc(var(--glass-blur) * 0.7)) saturate(1.45);
+      }
+
+      .chart span {
+        border-radius: 999px 999px 8px 8px;
+        background: linear-gradient(to top, var(--accent), var(--accent-2));
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
+      }
+
+      .table {
+        width: 100%;
+        border-collapse: collapse;
+        overflow: hidden;
+      }
+
+      .table th,
+      .table td {
+        padding: 12px 10px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.28);
+        text-align: left;
+        white-space: nowrap;
+      }
+
+      .table th {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .phone-frame {
+        width: min(360px, 100%);
+        margin: 0 auto;
+        padding: 12px;
+        border-radius: 36px;
+        background: rgba(12, 22, 28, 0.78);
+        box-shadow: 0 26px 70px rgba(0, 0, 0, 0.28);
+      }
+
+      .phone-screen {
+        min-height: 610px;
+        border-radius: 28px;
+        padding: 14px;
+        color: #12212a;
+        background:
+          linear-gradient(145deg, rgba(255, 255, 255, 0.8), rgba(235, 250, 247, 0.74)),
+          #e8f5f6;
+        overflow: hidden;
+      }
+
+      .mobile-category {
+        --glass-radius: 0;
+        margin: -14px -14px 14px;
+        padding: 14px;
+        border-radius: 28px 28px 18px 18px;
+      }
+
+      .mobile-category .chip-row {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding-bottom: 4px;
+      }
+
+      .mobile-bottom {
+        --glass-radius: 999px;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        min-height: 58px;
+        margin-top: 14px;
+        padding: 5px;
+      }
+
+      .mobile-bottom button {
+        position: relative;
+        width: 50px;
+        border: 1px solid transparent;
+        border-radius: 999px;
+        background: transparent;
+        color: #31434c;
+        cursor: pointer;
+        overflow: hidden;
+      }
+
+      .mobile-bottom button[aria-current="page"] {
+        color: white;
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      }
+
+      .media-card img,
+      .reference-image {
+        display: block;
+        width: 100%;
+        border-radius: 18px;
+        object-fit: cover;
+      }
+
+      .reference-image {
+        aspect-ratio: 3 / 2;
+        border: 1px solid rgba(255, 255, 255, 0.54);
+      }
+
+      .media-art {
+        min-height: 160px;
+        border-radius: 18px;
+        background:
+          linear-gradient(135deg, rgba(50, 120, 255, 0.55), transparent 48%),
+          linear-gradient(315deg, rgba(229, 107, 143, 0.45), transparent 42%),
+          linear-gradient(45deg, rgba(17, 168, 140, 0.42), transparent 46%),
+          #d7eefa;
+      }
+
+      .kanban {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .kanban-column {
+        position: relative;
+        display: grid;
+        gap: 10px;
+        align-content: start;
+        min-height: 270px;
+        padding: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.54);
+        border-radius: 20px;
+        background:
+          linear-gradient(135deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.1)),
+          rgba(255, 255, 255, 0.16);
+        box-shadow:
+          inset 1px 1px 0 rgba(255, 255, 255, 0.6),
+          -1px 0 8px rgba(255, 70, 126, 0.08),
+          1px 0 8px rgba(62, 146, 255, 0.1);
+        backdrop-filter: blur(calc(var(--glass-blur) * 0.7)) saturate(1.35);
+        -webkit-backdrop-filter: blur(calc(var(--glass-blur) * 0.7)) saturate(1.35);
+        overflow: hidden;
+      }
+
+      .task-card {
+        position: relative;
+        padding: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.54);
+        border-radius: 16px;
+        background:
+          linear-gradient(135deg, rgba(255, 255, 255, 0.48), rgba(255, 255, 255, 0.14)),
+          rgba(255, 255, 255, 0.18);
+        box-shadow:
+          inset 1px 1px 0 rgba(255, 255, 255, 0.62),
+          -1px 0 8px rgba(255, 70, 126, 0.08),
+          1px 0 8px rgba(62, 146, 255, 0.1);
+        backdrop-filter: blur(calc(var(--glass-blur) * 0.65)) saturate(1.35);
+        -webkit-backdrop-filter: blur(calc(var(--glass-blur) * 0.65)) saturate(1.35);
+        overflow: hidden;
+      }
+
+      .ring {
+        width: 108px;
+        height: 108px;
+        display: grid;
+        place-items: center;
+        border-radius: 50%;
+        background:
+          conic-gradient(var(--accent) 0 72%, rgba(255, 255, 255, 0.36) 72%),
+          rgba(255, 255, 255, 0.3);
+      }
+
+      .ring strong {
+        display: grid;
+        place-items: center;
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.72);
+      }
+
+      .floating-host {
+        position: fixed;
+        left: max(12px, env(safe-area-inset-left));
+        right: max(12px, env(safe-area-inset-right));
+        bottom: max(14px, env(safe-area-inset-bottom));
+        z-index: 45;
+        max-width: 430px;
+        margin-inline: auto;
+        pointer-events: none;
+      }
+
+      .floating-nav {
+        --glass-radius: 999px;
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        min-height: 62px;
+        padding: 6px;
+        pointer-events: auto;
+      }
+
+      .floating-nav button {
+        position: relative;
+        min-width: 60px;
+        border: 1px solid transparent;
+        border-radius: 999px;
+        background: transparent;
+        color: var(--muted);
+        cursor: pointer;
+        font-weight: 900;
+        overflow: hidden;
+      }
+
+      .floating-nav button[aria-current="page"] {
+        color: white;
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      }
+
+      dialog.glass {
+        width: min(520px, calc(100vw - 32px));
+        padding: 0;
+        border: 1px solid rgba(255, 255, 255, 0.58);
+        color: var(--ink);
+      }
+
+      dialog::backdrop {
+        background: rgba(14, 25, 32, 0.34);
+        backdrop-filter: blur(8px);
+      }
+
+      .modal-content {
+        padding: 22px;
+      }
+
+      .sheet {
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 60;
+        width: min(420px, 100vw);
+        padding: 18px;
+        transform: translateX(105%);
+        transition: transform 220ms ease;
+      }
+
+      .sheet[data-open="true"] {
+        transform: translateX(0);
+      }
+
+      .toast-stack {
+        position: fixed;
+        right: max(16px, env(safe-area-inset-right));
+        bottom: 92px;
+        z-index: 70;
+        display: grid;
+        gap: 10px;
+        width: min(360px, calc(100vw - 32px));
+        pointer-events: none;
+      }
+
+      .toast {
+        --glass-radius: 18px;
+        display: none;
+        padding: 14px;
+        pointer-events: auto;
+      }
+
+      .toast[data-visible="true"] {
+        display: block;
+      }
+
+      .callout {
+        position: relative;
+        padding: 16px;
+        border-left: 4px solid var(--accent);
+        border-radius: 18px;
+        background:
+          linear-gradient(135deg, rgba(255, 255, 255, 0.44), rgba(255, 255, 255, 0.12)),
+          rgba(255, 255, 255, 0.16);
+        box-shadow:
+          inset 1px 1px 0 rgba(255, 255, 255, 0.62),
+          -1px 0 8px rgba(255, 70, 126, 0.08),
+          1px 0 8px rgba(62, 146, 255, 0.1);
+        backdrop-filter: blur(calc(var(--glass-blur) * 0.7)) saturate(1.35);
+        -webkit-backdrop-filter: blur(calc(var(--glass-blur) * 0.7)) saturate(1.35);
+        overflow: hidden;
+      }
+
+      .code-block {
+        overflow-x: auto;
+        padding: 14px;
+        border-radius: 16px;
+        color: #eaf8ff;
+        background: rgba(12, 23, 32, 0.86);
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 13px;
+        line-height: 1.6;
+      }
+
+      .visually-hidden {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
+      }
+
+      @media (max-width: 1040px) {
+        .hero-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .component-grid {
+          grid-template-columns: repeat(6, 1fr);
+        }
+
+        .span-3,
+        .span-4,
+        .span-5,
+        .span-6,
+        .span-7,
+        .span-8 {
+          grid-column: span 6;
+        }
+      }
+
+      @media (max-width: 760px) {
+        .page {
+          padding-inline: 14px;
+        }
+
+        .top-host {
+          display: none;
+        }
+
+        .hero-grid {
+          padding-top: 12px;
+        }
+
+        .component-grid,
+        .stage-grid,
+        .kanban {
+          grid-template-columns: 1fr;
+        }
+
+        .span-3,
+        .span-4,
+        .span-5,
+        .span-6,
+        .span-7,
+        .span-8,
+        .span-12 {
+          grid-column: auto;
+        }
+
+        .section-title {
+          align-items: start;
+          flex-direction: column;
+        }
+
+        h1 {
+          font-size: 38px;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          scroll-behavior: auto !important;
+          transition-duration: 0.001ms !important;
+          animation-duration: 0.001ms !important;
+        }
+      }
+    </style>
+  </head>
+  <body data-theme="aqua" data-path="bits">
+    <svg class="svg-filters" aria-hidden="true" focusable="false">
+      <defs>
+        <filter id="liquid-glass-displacement" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB">
+          <feTurbulence type="fractalNoise" baseFrequency="0.026 0.034" numOctaves="3" seed="8" result="noise" />
+          <feGaussianBlur in="noise" stdDeviation="0.65" result="softNoise" />
+          <feDisplacementMap in="SourceGraphic" in2="softNoise" scale="72" xChannelSelector="R" yChannelSelector="G" result="displaced" />
+          <feColorMatrix
+            in="displaced"
+            type="matrix"
+            values="1.14 0 0 0 0.02  0 1.08 0 0 0.015  0 0 1.2 0 0.03  0 0 0 1 0"
+          />
+        </filter>
+        <filter id="liquid-glass-displacement-soft" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB">
+          <feTurbulence type="fractalNoise" baseFrequency="0.014 0.02" numOctaves="2" seed="4" result="noise" />
+          <feGaussianBlur in="noise" stdDeviation="1.15" result="softNoise" />
+          <feDisplacementMap in="SourceGraphic" in2="softNoise" scale="24" xChannelSelector="R" yChannelSelector="G" />
+        </filter>
+        <filter id="liquid-edge-chromatic" x="-12%" y="-12%" width="124%" height="124%" color-interpolation-filters="sRGB">
+          <feOffset in="SourceGraphic" dx="-1.3" dy="0" result="redShift" />
+          <feColorMatrix
+            in="redShift"
+            type="matrix"
+            values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.52 0"
+            result="red"
+          />
+          <feOffset in="SourceGraphic" dx="1.3" dy="0" result="blueShift" />
+          <feColorMatrix
+            in="blueShift"
+            type="matrix"
+            values="0 0 0 0 0  0 0.35 0 0 0  0 0 1 0 0  0 0 0 0.5 0"
+            result="blue"
+          />
+          <feBlend in="red" in2="blue" mode="screen" result="channels" />
+          <feBlend in="SourceGraphic" in2="channels" mode="screen" />
+        </filter>
+      </defs>
+    </svg>
+    <div class="top-host">
+      <nav class="top-nav glass" aria-label="Demo sections">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true">LG</span>
+          <span>react-liquid-glass demo</span>
+        </div>
+        <div class="nav-links">
+          <a href="#components" aria-current="page">组件</a>
+          <a href="#scenes">场景</a>
+          <a href="#patterns">模式</a>
+        </div>
+        <a class="pill-button nav-action" href="../README.md">README</a>
+      </nav>
+    </div>
+
+    <main class="page">
+      <section class="hero-grid" aria-labelledby="page-title">
+        <div class="stage-panel glass" data-depth="strong">
+          <span class="kicker">Skill demo · React/Next Liquid Glass</span>
+          <h1 id="page-title">一个覆盖多组件、多业务场景的 Liquid Glass 静态样例</h1>
+          <p class="lead">
+            这个 HTML 按 Path 2，也就是 React Bits `GlassSurface` 的思路重做：SVG
+            displacement map、RGB 色差边缘、可调 blur/alpha/rim，以及不支持 SVG backdrop
+            filter 时的 CSS frosted fallback。它不是生产组件源码，但可以作为视觉、交互和验收覆盖面的参考。
+          </p>
+          <div class="toolbar-row" aria-label="主要操作">
+            <button class="glass-button primary" type="button" data-open-modal>打开 Modal</button>
+            <button class="glass-button" type="button" data-open-sheet>打开 Sheet</button>
+            <button class="glass-button warning" type="button" data-toast>显示 Toast</button>
+            <button class="glass-button" type="button" disabled>禁用状态</button>
+          </div>
+
+          <div class="stage-grid">
+            <article class="mini-card glass">
+              <span class="badge">Nav</span>
+              <div class="metric-value">44px+</div>
+              <p class="muted">按钮、Tab、底部导航都保持触控尺寸，方便映射到移动端 header 或 bottom bar。</p>
+            </article>
+            <article class="mini-card glass">
+              <span class="badge soft">Fallback</span>
+              <div class="metric-value">CSS</div>
+              <p class="muted">静态 demo 使用 `backdrop-filter`，在不支持折射的浏览器中仍然保持毛玻璃层次。</p>
+            </article>
+          </div>
+        </div>
+
+        <aside class="control-panel glass" aria-labelledby="control-title">
+          <h2 id="control-title">效果控制台</h2>
+          <div class="control-list">
+            <div>
+              <p class="muted">Path 2 GlassSurface 强度</p>
+              <div class="segmented" role="group" aria-label="Glass implementation path">
+                <button type="button" data-path-choice="bits" aria-pressed="true">强折射</button>
+                <button type="button" data-path-choice="bits-soft" aria-pressed="false">轻折射</button>
+              </div>
+            </div>
+
+            <div>
+              <p class="muted">主题</p>
+              <div class="theme-row" role="group" aria-label="Theme">
+                <button class="theme-dot" type="button" data-theme-value="aqua" aria-label="Aqua theme" aria-pressed="true"></button>
+                <button class="theme-dot" type="button" data-theme-value="mint" aria-label="Mint theme" aria-pressed="false"></button>
+                <button class="theme-dot" type="button" data-theme-value="rose" aria-label="Rose theme" aria-pressed="false"></button>
+                <button class="theme-dot" type="button" data-theme-value="graphite" aria-label="Graphite theme" aria-pressed="false"></button>
+              </div>
+            </div>
+
+            <div class="control-field">
+              <label for="blur-range">Blur <span data-value-for="blur-range">5px</span></label>
+              <input id="blur-range" type="range" min="2" max="20" value="5" data-css-var="--glass-blur" data-unit="px" />
+            </div>
+            <div class="control-field">
+              <label for="alpha-range">Alpha <span data-value-for="alpha-range">0.12</span></label>
+              <input id="alpha-range" type="range" min="6" max="42" value="12" data-css-var="--glass-alpha" data-scale="100" />
+            </div>
+            <div class="control-field">
+              <label for="radius-range">Radius <span data-value-for="radius-range">24px</span></label>
+              <input id="radius-range" type="range" min="10" max="38" value="24" data-css-var="--glass-radius" data-unit="px" />
+            </div>
+            <div class="control-field">
+              <label for="rim-range">Rim <span data-value-for="rim-range">1.00</span></label>
+              <input id="rim-range" type="range" min="20" max="100" value="100" data-css-var="--rim-strength" data-scale="100" />
+            </div>
+          </div>
+        </aside>
+      </section>
+
+      <section id="components" class="demo-section" aria-labelledby="components-title">
+        <div class="section-title">
+          <div>
+            <span class="kicker">Component coverage</span>
+            <h2 id="components-title">基础组件</h2>
+          </div>
+          <p>覆盖按钮、Badge、表单、Search、Select、Tabs、Switch、Toast、Modal、Sheet、Popover 等常见 UI 表面。</p>
+        </div>
+
+        <div class="component-grid">
+          <article class="component-card glass span-4">
+            <h3>Buttons / Badges</h3>
+            <div class="button-stack">
+              <button class="glass-button primary" type="button">保存</button>
+              <button class="glass-button" type="button">预览</button>
+              <button class="glass-button danger" type="button">删除</button>
+              <button class="glass-button" type="button" disabled>不可用</button>
+            </div>
+            <div class="chip-row" style="margin-top: 14px">
+              <span class="badge">New</span>
+              <span class="badge soft">Beta</span>
+              <span class="badge" style="background: linear-gradient(135deg, var(--accent-4), var(--accent-3))">Hot</span>
+            </div>
+          </article>
+
+          <article class="component-card glass span-4">
+            <h3>Form controls</h3>
+            <div class="form-grid">
+              <label class="form-control">
+                <span>搜索</span>
+                <span class="input-shell">
+                  <span aria-hidden="true">⌕</span>
+                  <input type="search" placeholder="Search components" />
+                </span>
+              </label>
+              <label class="form-control">
+                <span>尺寸</span>
+                <span class="input-shell">
+                  <select>
+                    <option>Compact</option>
+                    <option>Comfortable</option>
+                    <option>Dense dashboard</option>
+                  </select>
+                </span>
+              </label>
+            </div>
+          </article>
+
+          <article class="component-card glass span-4">
+            <h3>Switch / Chips</h3>
+            <div class="settings-list">
+              <button class="switch" type="button" role="switch" aria-checked="true" aria-label="Enable refraction">
+                <span></span>
+              </button>
+              <button class="switch" type="button" role="switch" aria-checked="false" aria-label="Enable compact mode">
+                <span></span>
+              </button>
+            </div>
+            <div class="chip-row" style="margin-top: 16px" role="group" aria-label="Filter chips">
+              <button class="chip" type="button" aria-pressed="true">全部</button>
+              <button class="chip" type="button" aria-pressed="false">导航</button>
+              <button class="chip" type="button" aria-pressed="false">弹层</button>
+              <button class="chip" type="button" aria-pressed="false">表单</button>
+            </div>
+          </article>
+
+          <article class="component-card glass span-5">
+            <h3>Tabs</h3>
+            <div class="tabs" data-tabs>
+              <div class="tab-list" role="tablist" aria-label="Glass path tabs">
+                <button type="button" role="tab" aria-selected="true" data-tab="path-a">Displacement</button>
+                <button type="button" role="tab" aria-selected="false" data-tab="path-b">RGB edge</button>
+                <button type="button" role="tab" aria-selected="false" data-tab="checks">Checks</button>
+              </div>
+              <div class="tab-panel" role="tabpanel" data-panel="path-a" data-active="true">
+                所有 `.glass` surface 默认使用 `backdrop-filter: url(#liquid-glass-displacement)` 来模拟 Path 2 的 SVG displacement。
+              </div>
+              <div class="tab-panel" role="tabpanel" data-panel="path-b">
+                每个组件表面都叠加红/蓝/绿通道边缘高光，模拟 React Bits `GlassSurface` 的 per-channel chromatic aberration。
+              </div>
+              <div class="tab-panel" role="tabpanel" data-panel="checks">
+                验收关注 SSR 安全、fixed host 稳定、44px 触控尺寸、active ARIA 状态和 fallback。
+              </div>
+            </div>
+          </article>
+
+          <article class="component-card glass span-3">
+            <h3>Popover</h3>
+            <details>
+              <summary class="glass-button">打开菜单</summary>
+              <div class="callout" style="margin-top: 12px">
+                <strong>快速操作</strong>
+                <p class="muted" style="margin: 8px 0 0">复制、归档、移动、标记为重点。</p>
+              </div>
+            </details>
+          </article>
+
+          <article class="component-card glass span-4">
+            <h3>Progress / Toast trigger</h3>
+            <p class="muted">构建进度、上传进度、媒体播放条都适合放在浅玻璃层里。</p>
+            <div class="progress" aria-label="Progress">
+              <span style="width: 68%"></span>
+            </div>
+            <button class="glass-button primary" type="button" data-toast style="margin-top: 14px">完成后通知</button>
+          </article>
+        </div>
+      </section>
+
+      <section id="scenes" class="demo-section" aria-labelledby="scenes-title">
+        <div class="section-title">
+          <div>
+            <span class="kicker">Scenario coverage</span>
+            <h2 id="scenes-title">业务场景</h2>
+          </div>
+          <p>同一套 glass surface 可以落到后台系统、移动端信息流、数据看板、商品筛选、媒体控制和项目管理场景。</p>
+        </div>
+
+        <div class="component-grid">
+          <article class="component-card glass span-7">
+            <h3>后台运营面板</h3>
+            <div class="stat-row">
+              <div class="mini-card glass" style="flex: 1">
+                <span class="muted">活跃用户</span>
+                <div class="metric-value">24.8k</div>
+                <span class="badge soft">+12.4%</span>
+              </div>
+              <div class="mini-card glass" style="flex: 1">
+                <span class="muted">转化率</span>
+                <div class="metric-value">8.6%</div>
+                <span class="badge soft">稳定</span>
+              </div>
+            </div>
+            <div class="chart" aria-label="Revenue chart" style="margin-top: 14px">
+              <span style="height: 42%"></span>
+              <span style="height: 68%"></span>
+              <span style="height: 54%"></span>
+              <span style="height: 78%"></span>
+              <span style="height: 64%"></span>
+              <span style="height: 88%"></span>
+              <span style="height: 72%"></span>
+              <span style="height: 94%"></span>
+            </div>
+          </article>
+
+          <article class="component-card glass span-5">
+            <h3>移动端内容应用</h3>
+            <div class="phone-frame">
+              <div class="phone-screen">
+                <div class="mobile-category glass">
+                  <strong>今日推荐</strong>
+                  <div class="chip-row" style="margin-top: 12px">
+                    <button class="chip" type="button" aria-pressed="true">全部</button>
+                    <button class="chip" type="button" aria-pressed="false">AI</button>
+                    <button class="chip" type="button" aria-pressed="false">产品</button>
+                    <button class="chip" type="button" aria-pressed="false">设计</button>
+                  </div>
+                </div>
+                <article class="glass" style="padding: 14px; --glass-radius: 22px">
+                  <span class="badge">Top story</span>
+                  <h3 style="margin-top: 12px">固定顶部分类栏从 full row 切换到 floating pill</h3>
+                  <p class="muted">对应技能里的移动端 header 和滚动后收起模式。</p>
+                </article>
+                <article class="glass" style="padding: 14px; margin-top: 12px; --glass-radius: 22px">
+                  <span class="badge soft">Later</span>
+                  <h3 style="margin-top: 12px">底部导航通过 fixed host 保持稳定</h3>
+                  <p class="muted">host 自身不加 transform/filter，内部 glass 可点击。</p>
+                </article>
+                <div class="mobile-bottom glass" aria-label="Mobile bottom nav">
+                  <button type="button" aria-current="page">Home</button>
+                  <button type="button">Feed</button>
+                  <button type="button">Saved</button>
+                  <button type="button">Me</button>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="component-card glass span-4 media-card">
+            <h3>视觉参考</h3>
+            <img class="reference-image" src="../assets/react-liquid-glass-overview.png" alt="React Liquid Glass overview image" />
+            <p class="muted" style="margin-top: 12px">README 里的概览图可作为组件覆盖范围的视觉索引。</p>
+          </article>
+
+          <article class="component-card glass span-4">
+            <h3>商品筛选</h3>
+            <div class="media-art" aria-hidden="true"></div>
+            <div class="chip-row" style="margin-top: 12px">
+              <button class="chip" type="button" aria-pressed="true">Glass</button>
+              <button class="chip" type="button" aria-pressed="false">New</button>
+              <button class="chip" type="button" aria-pressed="false">Sale</button>
+            </div>
+            <div class="toolbar-row" style="margin-top: 12px">
+              <button class="glass-button primary" type="button">加入收藏</button>
+              <button class="glass-button" type="button">详情</button>
+            </div>
+          </article>
+
+          <article class="component-card glass span-4">
+            <h3>媒体控制</h3>
+            <div class="media-art" style="min-height: 120px" aria-hidden="true"></div>
+            <p class="muted" style="margin: 12px 0 8px">Liquid Focus Mix</p>
+            <div class="progress">
+              <span style="width: 42%"></span>
+            </div>
+            <div class="toolbar-row" style="margin-top: 12px">
+              <button class="glass-button" type="button">上一首</button>
+              <button class="glass-button primary" type="button">播放</button>
+              <button class="glass-button" type="button">下一首</button>
+            </div>
+          </article>
+
+          <article class="component-card glass span-8">
+            <h3>项目看板</h3>
+            <div class="kanban" aria-label="Project kanban">
+              <div class="kanban-column">
+                <strong>Todo</strong>
+                <div class="task-card">替换移动端 header glass surface</div>
+                <div class="task-card">补 SSR portal 测试</div>
+              </div>
+              <div class="kanban-column">
+                <strong>Doing</strong>
+                <div class="task-card">调试 Chrome/Edge 折射层</div>
+                <div class="task-card">确认 Safari fallback</div>
+              </div>
+              <div class="kanban-column">
+                <strong>Done</strong>
+                <div class="task-card">按钮语义和 active 状态</div>
+                <div class="task-card">触控高度检查</div>
+              </div>
+            </div>
+          </article>
+
+          <article class="component-card glass span-4">
+            <h3>设置中心</h3>
+            <div class="settings-list">
+              <div class="callout">
+                <strong>Reduced motion</strong>
+                <p class="muted" style="margin: 6px 0 0">遵守系统减少动态设置。</p>
+              </div>
+              <div class="callout">
+                <strong>Browser fallback</strong>
+                <p class="muted" style="margin: 6px 0 0">Safari/Firefox 使用 CSS frosted glass。</p>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section id="patterns" class="demo-section" aria-labelledby="patterns-title">
+        <div class="section-title">
+          <div>
+            <span class="kicker">Implementation patterns</span>
+            <h2 id="patterns-title">实现模式和验收提示</h2>
+          </div>
+          <p>这部分把技能里的关键 guardrails 转成可复制的 demo 约束，方便后续迁移到 React 组件。</p>
+        </div>
+
+        <div class="component-grid">
+          <article class="component-card glass span-6">
+            <h3>Fixed host 模式</h3>
+            <p class="muted">外层 host 负责 fixed 定位和 pointer-events，内部 glass surface 负责视觉效果和可点击内容。</p>
+            <pre class="code-block"><code>.host {
+  position: fixed;
+  left: max(12px, env(safe-area-inset-left));
+  right: max(12px, env(safe-area-inset-right));
+  pointer-events: none;
+}
+
+.glass {
+  pointer-events: auto;
+  backdrop-filter: blur(18px) saturate(1.6);
+}</code></pre>
+          </article>
+
+          <article class="component-card glass span-6">
+            <h3>Path 参数映射</h3>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>GlassSurface</th>
+                  <th>simple-liquid-glass</th>
+                  <th>含义</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>distortionScale</td>
+                  <td>displace + lensStrength</td>
+                  <td>折射强度</td>
+                </tr>
+                <tr>
+                  <td>red/green/blueOffset</td>
+                  <td>aberrationIntensity + dispersion</td>
+                  <td>色差</td>
+                </tr>
+                <tr>
+                  <td>backgroundOpacity</td>
+                  <td>frost + glassColor</td>
+                  <td>霜化背景</td>
+                </tr>
+                <tr>
+                  <td>borderWidth</td>
+                  <td>border</td>
+                  <td>边缘高光</td>
+                </tr>
+              </tbody>
+            </table>
+          </article>
+
+          <article class="component-card glass span-12">
+            <h3>验收清单</h3>
+            <div class="component-grid" style="grid-template-columns: repeat(12, 1fr)">
+              <div class="callout span-3"><strong>SSR</strong><p class="muted" style="margin: 6px 0 0">需要 document.body 时，先 mount 后 portal。</p></div>
+              <div class="callout span-3"><strong>ARIA</strong><p class="muted" style="margin: 6px 0 0">按钮用 aria-pressed，当前链接用 aria-current。</p></div>
+              <div class="callout span-3"><strong>Touch</strong><p class="muted" style="margin: 6px 0 0">可点击目标保持 44px 以上。</p></div>
+              <div class="callout span-3"><strong>Fallback</strong><p class="muted" style="margin: 6px 0 0">不支持折射时保持清晰毛玻璃层。</p></div>
+            </div>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <div class="floating-host">
+      <nav class="floating-nav glass" aria-label="Floating demo navigation">
+        <button type="button" aria-current="page">组件</button>
+        <button type="button">场景</button>
+        <button type="button">模式</button>
+        <button type="button">设置</button>
+      </nav>
+    </div>
+
+    <dialog class="glass" id="demo-modal">
+      <div class="modal-content">
+        <span class="badge">Modal</span>
+        <h2 style="margin-top: 12px">Glass Modal</h2>
+        <p class="muted">用于确认、配置或短流程表单。背景 backdrop 也使用 blur，避免和前景玻璃层打架。</p>
+        <div class="toolbar-row">
+          <button class="glass-button primary" type="button" data-close-modal>确认</button>
+          <button class="glass-button" type="button" data-close-modal>取消</button>
+        </div>
+      </div>
+    </dialog>
+
+    <aside class="sheet glass" id="demo-sheet" aria-label="Glass sheet" data-open="false">
+      <span class="badge">Sheet</span>
+      <h2 style="margin-top: 12px">右侧抽屉</h2>
+      <p class="muted">适合筛选器、详情面板、设置项和移动端抽屉。真实 React 实现中可用 portal 挂到 body。</p>
+      <div class="settings-list">
+        <label class="form-control">
+          <span>组件密度</span>
+          <span class="input-shell">
+            <select>
+              <option>Comfortable</option>
+              <option>Compact</option>
+            </select>
+          </span>
+        </label>
+        <button class="glass-button primary" type="button" data-close-sheet>应用设置</button>
+        <button class="glass-button" type="button" data-close-sheet>关闭</button>
+      </div>
+    </aside>
+
+    <div class="toast-stack" aria-live="polite" aria-atomic="true">
+      <div class="toast glass" id="demo-toast">
+        <strong>操作成功</strong>
+        <p class="muted" style="margin: 6px 0 0">Toast 使用玻璃层但不阻挡页面交互。</p>
+      </div>
+    </div>
+
+    <script>
+      const root = document.documentElement;
+      const body = document.body;
+
+      document.querySelectorAll("[data-path-choice]").forEach((button) => {
+        button.addEventListener("click", () => {
+          body.dataset.path = button.dataset.pathChoice;
+          document.querySelectorAll("[data-path-choice]").forEach((item) => {
+            item.setAttribute("aria-pressed", String(item === button));
+          });
+        });
+      });
+
+      document.querySelectorAll("[data-theme-value]").forEach((button) => {
+        button.addEventListener("click", () => {
+          body.dataset.theme = button.dataset.themeValue;
+          document.querySelectorAll("[data-theme-value]").forEach((item) => {
+            item.setAttribute("aria-pressed", String(item === button));
+          });
+        });
+      });
+
+      document.querySelectorAll("input[type='range'][data-css-var]").forEach((input) => {
+        const output = document.querySelector(`[data-value-for="${input.id}"]`);
+        const sync = () => {
+          const scale = Number(input.dataset.scale || "1");
+          const unit = input.dataset.unit || "";
+          const value = scale === 1 ? `${input.value}${unit}` : `${Number(input.value) / scale}`;
+          root.style.setProperty(input.dataset.cssVar, value);
+          if (output) output.textContent = value;
+        };
+        input.addEventListener("input", sync);
+        sync();
+      });
+
+      document.querySelectorAll("[data-tabs]").forEach((tabs) => {
+        const tabButtons = tabs.querySelectorAll("[role='tab']");
+        const panels = tabs.querySelectorAll("[data-panel]");
+        tabButtons.forEach((button) => {
+          button.addEventListener("click", () => {
+            tabButtons.forEach((item) => item.setAttribute("aria-selected", String(item === button)));
+            panels.forEach((panel) => {
+              panel.dataset.active = String(panel.dataset.panel === button.dataset.tab);
+            });
+          });
+        });
+      });
+
+      document.querySelectorAll(".switch").forEach((switchButton) => {
+        switchButton.addEventListener("click", () => {
+          const next = switchButton.getAttribute("aria-checked") !== "true";
+          switchButton.setAttribute("aria-checked", String(next));
+        });
+      });
+
+      document.querySelectorAll(".chip").forEach((chip) => {
+        chip.addEventListener("click", () => {
+          chip.setAttribute("aria-pressed", String(chip.getAttribute("aria-pressed") !== "true"));
+        });
+      });
+
+      const modal = document.querySelector("#demo-modal");
+      document.querySelectorAll("[data-open-modal]").forEach((button) => {
+        button.addEventListener("click", () => modal.showModal());
+      });
+      document.querySelectorAll("[data-close-modal]").forEach((button) => {
+        button.addEventListener("click", () => modal.close());
+      });
+
+      const sheet = document.querySelector("#demo-sheet");
+      document.querySelectorAll("[data-open-sheet]").forEach((button) => {
+        button.addEventListener("click", () => {
+          sheet.dataset.open = "true";
+        });
+      });
+      document.querySelectorAll("[data-close-sheet]").forEach((button) => {
+        button.addEventListener("click", () => {
+          sheet.dataset.open = "false";
+        });
+      });
+
+      const toast = document.querySelector("#demo-toast");
+      let toastTimer = 0;
+      document.querySelectorAll("[data-toast]").forEach((button) => {
+        button.addEventListener("click", () => {
+          window.clearTimeout(toastTimer);
+          toast.dataset.visible = "true";
+          toastTimer = window.setTimeout(() => {
+            toast.dataset.visible = "false";
+          }, 2600);
+        });
+      });
+    </script>
+  </body>
+</html>
