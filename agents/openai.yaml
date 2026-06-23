@@ -1,0 +1,14 @@
+interface:
+  display_name: "React Liquid Glass"
+  short_description: "React/Next glass UI components (two-path gated workflow)"
+  default_prompt: "Use $react-liquid-glass to implement a glass navigation component. The skill gates on path selection (A: simple-liquid-glass / B: React Bits GlassSurface) and verifies prerequisites before coding."
+  triggers:
+    - "liquid glass"
+    - "glass surface"
+    - "glassmorphism"
+    - "frosted glass"
+    - "refraction effect"
+    - "glass nav"
+    - "glass header"
+    - "transparent blur"
+    - "backdrop filter glass"
